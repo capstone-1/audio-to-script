@@ -12,6 +12,7 @@ import wave
 import contextlib
 from pydub import AudioSegment
 import glob
+import os
 
 def download_audio(bucket_name, source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""
@@ -55,23 +56,44 @@ def sample_recognize_short():
             "encoding": encoding,
         }
 
-        local_files = glob.glob("./sliced*")
+        local_files = sorted(glob.glob("./sliced*"), key=os.path.getctime)
+        script_index = 0
+        merged_script = ""
         for local_file_path in local_files :
+            if (is_start(local_file_path)) :
+                print("Start Time")
+                write_merged_script(merged_script, script_index)
+                merged_script = ""
+                script_index += 1;
+
             with io.open(local_file_path, "rb") as f:
                 content = f.read()
             audio = {"content": content}
-            script_file_name = "scrpt_" + local_file_path.split("_")[1].split(".")[0]
-            fd = open(script_file_name, 'w')
             response = client.recognize(config, audio)
             print(u"Current File : " + local_file_path)
             for result in response.results:
+
                 # First alternative is the most probable result
                 alternative = result.alternatives[0]
-                fd.write(alternative.transcript)
-            fd.close()
-                
+                merged_script += (alternative.transcript + "\n")
 
-def divide_aduio(destination_file_name):
+        if (merged_script != "") :
+            print("remained")
+            write_merged_script(merged_script, script_index)
+
+def is_start(file_path) :
+    start_time = int(file_path.split("_")[1].split(".")[0].split("-")[0])
+    if (start_time != 0 and start_time % (59*3) == 0) :
+        return True
+    return False
+
+def write_merged_script(merged_script, script_index) :
+    script_name = "script_" + str(script_index) + ".txt"
+    fd = open(script_name,'w')
+    fd.write(merged_script)
+    fd.close()
+
+def divide_audio(destination_file_name):
     duration = get_audio_duration(destination_file_name)
     for start in range(0,duration,59) :
         if (duration - start < 59) :
@@ -99,48 +121,6 @@ if __name__ == "__main__":
     file_name = "test123.wav"
     destination_file_name = "audio.wav"
     # storage_uri = getStorageUri(bucket_name,file_name)
-    storage_uri = "./audio.wav"
-
     download_audio(bucket_name, file_name, destination_file_name)
-    divide_aduio(storage_uri)
+    divide_audio(destination_file_name)
     sample_recognize_short()
-
-
-
-##### Long Running Job
-# def sample_recognize_long(storage_uri):
-#     """
-#     Performs synchronous speech recognition on an audio file
-
-#     Args:
-#       storage_uri URI for audio file in Cloud Storage, e.g. gs://[BUCKET]/[FILE]
-#     """
-#     client = speech_v1.SpeechClient()
-
-#     # storage_uri = 'gs://cloud-samples-data/speech/brooklyn_bridge.mp3'
-
-#     # The language of the supplied audio
-#     language_code = "ko-KR"
-
-#     # Sample rate in Hertz of the audio data sent
-#     sample_rate_hertz = 16000
-
-#     # Encoding of audio data sent. This sample sets this explicitly.
-#     # This field is optional for FLAC and WAV audio formats.
-#     encoding = enums.RecognitionConfig.AudioEncoding.LINEAR16
-#     config = {
-#         "language_code": language_code,
-#         "sample_rate_hertz": sample_rate_hertz,
-#         "encoding": encoding,
-#     }
-#     audio = {"uri": storage_uri}
-#     operation = client.long_running_recognize(config, audio)
-#     print(u"Waiting for operations to complete...")
-#     response = operation.result()
-#     script = "";
-#     for result in response.results:
-#         # First alternative is the most probable result
-#         alternative = result.alternatives[0]
-#         script += (alternative.transcript + "\n")
-
-#     print("result : " + script)
