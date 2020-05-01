@@ -33,7 +33,7 @@ def getStorageUri(bucket_name, file_name):
     return "gs://" + bucket_name + "/" + file_name
 
 
-def sample_recognize_short():
+def sample_recognize_short(destination_file_name):
         """
         Transcribe a short audio file using synchronous speech recognition
         Args:
@@ -45,7 +45,7 @@ def sample_recognize_short():
         language_code = "ko-KR"
 
         # Sample rate in Hertz of the audio data sent
-        sample_rate_hertz = 16000
+        sample_rate_hertz = get_frame_rate(destination_file_name)
 
         # Encoding of audio data sent. This sample sets this explicitly.
         # This field is optional for FLAC and WAV audio formats.
@@ -116,6 +116,10 @@ def get_audio_duration(destination_file_name):
         duration = frames/float(rate)
         return int(duration)
 
+def get_frame_rate(destination_file_name) :
+    with contextlib.closing(wave.open(destination_file_name, 'r')) as f:
+        return f.getframerate()
+
 if __name__ == "__main__":
     bucket_name = "capstone-sptt-storage"
     file_name = "test123.wav"
@@ -123,4 +127,4 @@ if __name__ == "__main__":
     # storage_uri = getStorageUri(bucket_name,file_name)
     download_audio(bucket_name, file_name, destination_file_name)
     divide_audio(destination_file_name)
-    sample_recognize_short()
+    sample_recognize_short(destination_file_name)
