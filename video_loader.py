@@ -89,9 +89,19 @@ def is_start(file_path) :
     return False
 
 def write_merged_script(merged_script, script_index) :
+    line_breaker = 10
+    idx = 1
+    all_words = merged_script.split(' ')
     script_name = "script_" + str(script_index) + ".txt"
     fd = open(script_name,'w')
-    fd.write(merged_script)
+    for word in all_words :
+        if(idx == line_breaker):
+            fd.write(word.strip('\n')+"\n")
+            idx = 0
+        else :
+            fd.write(word.strip('\n')+" ")
+        idx += 1
+#    newline_script = get_newline_script(merged_script)
     fd.close()
 
 def divide_audio(destination_file_name):
