@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*- 
+#
+
 import tomotopy as tp # 먼저 모듈을 불러와야겠죠
 from tokenizer import tokenize
 from multiprocessing import Process

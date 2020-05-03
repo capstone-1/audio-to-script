@@ -4,7 +4,7 @@ from video_loader import *
 app = Flask(__name__)
 @app.route('/lda-api')
 def create_script():
-    bucket_name = "capstone-test"
+    bucket_name = "capstone-sptt-storage"
     file_name = request.args.get("fileName")+".wav"
     destination_file_name = "audio.wav"
     # storage_uri = getStorageUri(bucket_name,file_name)

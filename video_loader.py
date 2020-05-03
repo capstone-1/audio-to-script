@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*- 
+
 #TODO: 
 # 1. get Audio from Videos - done
 # 2. cut Audio (interval : 1m) -done

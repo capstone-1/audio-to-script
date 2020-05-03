@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*- 
+import nltk
+nltk.download('stopwords')
+nltk.download('punkt')
 import nltk.stem, nltk.corpus, nltk.tokenize, re
 stemmer = nltk.stem.porter.PorterStemmer() 
 # 영어 단어의 어근만 남겨주는 포터 스테머입니다.
