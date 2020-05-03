@@ -7,13 +7,13 @@
 from google.cloud import storage
 from google.cloud import speech_v1
 from google.cloud.speech_v1 import enums
+from topic_maker import make_topic
 import io
 import wave
 import contextlib
 from pydub import AudioSegment
 import glob
 import os
-from flask import Flask, request
 
 def download_audio(bucket_name, source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""
@@ -43,10 +43,10 @@ def sample_recognize_short(destination_file_name):
         client = speech_v1.SpeechClient()
 
         # The language of the supplied audio
-        language_code = "ko-KR"
+        language_code = "en-US"
 
         # Sample rate in Hertz of the audio data sent
-        sample_rate_hertz = get_frame_rate(destination_file_name)
+        sample_rate_hertz = 16000
 
         # Encoding of audio data sent. This sample sets this explicitly.
         # This field is optional for FLAC and WAV audio formats.
@@ -65,7 +65,7 @@ def sample_recognize_short(destination_file_name):
                 print("Start Time")
                 write_merged_script(merged_script, script_index)
                 merged_script = ""
-                script_index += 1;
+                script_index += 1
 
             with io.open(local_file_path, "rb") as f:
                 content = f.read()
@@ -132,20 +132,3 @@ def get_audio_duration(destination_file_name):
 def get_frame_rate(destination_file_name) :
     with contextlib.closing(wave.open(destination_file_name, 'r')) as f:
         return f.getframerate()
-
-
-app = Flask(__name__)
-@app.route('/lda-api')
-def create_script():
-    bucket_name = "capstone-sptt-storage"
-    file_name = request.args.get("fileName")+".wav"
-    destination_file_name = "audio.wav"
-    # storage_uri = getStorageUri(bucket_name,file_name)
-    download_audio(bucket_name, file_name, destination_file_name)
-    divide_audio(destination_file_name)
-    sample_recognize_short(destination_file_name)
-    return file_name;
-
-if __name__ == "__main__":
-    app.run()
-    
