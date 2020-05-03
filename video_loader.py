@@ -13,6 +13,7 @@ import contextlib
 from pydub import AudioSegment
 import glob
 import os
+from flask import Flask, request
 
 def download_audio(bucket_name, source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""
@@ -104,6 +105,8 @@ def divide_audio(destination_file_name):
 
 def save_sliced_audio(start,end, destination_file_name) :
     audio = AudioSegment.from_wav(destination_file_name)
+    audio = audio.set_channels(1)
+    audio = audio.set_frame_rate(16000)
     file_name = "sliced_" + str(start) + "-" + str(end) + ".wav"
     start_time = start * 1000
     end_time = end * 1000
@@ -120,11 +123,19 @@ def get_frame_rate(destination_file_name) :
     with contextlib.closing(wave.open(destination_file_name, 'r')) as f:
         return f.getframerate()
 
-if __name__ == "__main__":
+
+app = Flask(__name__)
+@app.route('/lda-api')
+def create_script():
     bucket_name = "capstone-sptt-storage"
-    file_name = "test123.wav"
+    file_name = request.args.get("fileName")+".wav"
     destination_file_name = "audio.wav"
     # storage_uri = getStorageUri(bucket_name,file_name)
     download_audio(bucket_name, file_name, destination_file_name)
     divide_audio(destination_file_name)
     sample_recognize_short(destination_file_name)
+    return file_name;
+
+if __name__ == "__main__":
+    app.run()
+    
