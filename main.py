@@ -10,8 +10,8 @@ def create_script():
     # storage_uri = getStorageUri(bucket_name,file_name)
     download_audio(bucket_name, file_name, destination_file_name)
     divide_audio(destination_file_name)
-    sample_recognize_short(destination_file_name)
-    make_topic()
+    count_script = sample_recognize_short(destination_file_name)
+    make_topic(count_script)
     return file_name
 
 if __name__ == "__main__":

@@ -81,6 +81,8 @@ def sample_recognize_short(destination_file_name):
         if (merged_script != "") :
             print("remained")
             write_merged_script(merged_script, script_index)
+        
+        return script_index + 1
 
 def is_start(file_path) :
     start_time = int(file_path.split("_")[1].split(".")[0].split("-")[0])
