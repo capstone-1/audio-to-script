@@ -15,4 +15,4 @@ def create_script():
     return file_name
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=5900)
