@@ -21,6 +21,7 @@ def make_topic(count_script, video_file_name):
         proc.start()
     for proc in procs: 
         proc.join()
+    os.remove("audio.wav")
 
 def core(file_name, file_number, video_file_name):
     # 현재 동작중인 프로세스 표시
@@ -54,19 +55,15 @@ def core(file_name, file_number, video_file_name):
         print('Topic #{}'.format(i), end='\t')
         topic = ', '.join(w for w, p in res)
         print(topic)
-        make_topic_file(topic, "output_topic" + file_number + ".txt", video_file_name, file_name)
+        upload_topic_file(topic, "output_topic" + file_number + ".txt", video_file_name)
+    os.remove(file_name)
 
 # 추출된 토픽으로 파일 생성 -> GCS 업로드 (스크립트, 토픽) -> 로컬 삭제
-def make_topic_file(topic, topic_file_name, video_file_name, script_file_name):
+def upload_topic_file(topic, topic_file_name, video_file_name):
     with open(topic_file_name, "a") as f:
             f.write(topic)
     storage_client = storage.Client()
     bucket = storage_client.get_bucket("capstone-test")
-    
     blob = bucket.blob(video_file_name + "/result/" + topic_file_name)
     blob.upload_from_filename(topic_file_name)
     os.remove(topic_file_name)
-
-    blob = bucket.blob(video_file_name + "/result/" + script_file_name)
-    blob.upload_from_filename(script_file_name)
-    os.remove(script_file_name)

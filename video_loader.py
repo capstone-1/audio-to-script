@@ -66,6 +66,7 @@ def sample_recognize_short(destination_file_name):
     local_files = sorted(glob.glob("./sliced*"), key=os.path.getctime)
     script_index = 0
     merged_script = ""
+    total_script = ""
     for local_file_path in local_files :
         if (is_start(local_file_path)) :
             print("Start Time")
@@ -82,12 +83,14 @@ def sample_recognize_short(destination_file_name):
             # First alternative is the most probable result
             alternative = result.alternatives[0]
             merged_script += (alternative.transcript + "\n")
+            total_script += (alternative.transcript + "\n")
         os.remove(local_file_path)
 
     if (merged_script != "") :
         print("remained")
         write_merged_script(merged_script, script_index)
     
+    write_total_script(total_script)
     return script_index + 1
 
 def is_start(file_path) :
@@ -95,6 +98,22 @@ def is_start(file_path) :
     if (start_time != 0 and start_time % (59*3) == 0) :
         return True
     return False
+
+def write_total_script(total_script):
+    line_breaker = 10
+    idx = 1
+    all_words = total_script.split(' ')
+    script_name = "total_script.txt"
+    fd = open(script_name,'w')
+    for word in all_words :
+        if(idx == line_breaker):
+            fd.write(word.strip('\n')+"\n")
+            idx = 0
+        else :
+            fd.write(word.strip('\n')+" ")
+        idx += 1
+    #    newline_script = get_newline_script(merged_script)
+    fd.close()
 
 def write_merged_script(merged_script, script_index) :
     line_breaker = 10
@@ -109,7 +128,7 @@ def write_merged_script(merged_script, script_index) :
         else :
             fd.write(word.strip('\n')+" ")
         idx += 1
-#    newline_script = get_newline_script(merged_script)
+    #    newline_script = get_newline_script(merged_script)
     fd.close()
 
 def divide_audio(destination_file_name):
