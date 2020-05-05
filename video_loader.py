@@ -23,6 +23,10 @@ def download_audio(bucket_name, source_blob_name, destination_file_name):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
     blob.download_to_filename(destination_file_name)
+    
+    # 일련의 과정에서 사용될 버킷 내 폴더 미리 생성
+    blob = bucket.blob("test_shark/result/")
+    blob.upload_from_string('', content_type='application/x-www-form-urlencoded;charset=UTF-8')
 
     print(
         "Blob {} downloaded to {}.".format(
@@ -35,54 +39,54 @@ def getStorageUri(bucket_name, file_name):
 
 
 def sample_recognize_short(destination_file_name):
-        """
-        Transcribe a short audio file using synchronous speech recognition
-        Args:
-          local_file_path Path to local audio file, e.g. /path/audio.wav
-        """    
-        client = speech_v1.SpeechClient()
+    """
+    Transcribe a short audio file using synchronous speech recognition
+    Args:
+        local_file_path Path to local audio file, e.g. /path/audio.wav
+    """    
+    client = speech_v1.SpeechClient()
 
-        # The language of the supplied audio
-        language_code = "en-US"
+    # The language of the supplied audio
+    language_code = "en-US"
 
-        # Sample rate in Hertz of the audio data sent
-        sample_rate_hertz = 16000
+    # Sample rate in Hertz of the audio data sent
+    sample_rate_hertz = 16000
 
-        # Encoding of audio data sent. This sample sets this explicitly.
-        # This field is optional for FLAC and WAV audio formats.
-        encoding = enums.RecognitionConfig.AudioEncoding.LINEAR16
-        config = {
-            "language_code": language_code,
-            "sample_rate_hertz": sample_rate_hertz,
-            "encoding": encoding,
-        }
+    # Encoding of audio data sent. This sample sets this explicitly.
+    # This field is optional for FLAC and WAV audio formats.
+    encoding = enums.RecognitionConfig.AudioEncoding.LINEAR16
+    config = {
+        "language_code": language_code,
+        "sample_rate_hertz": sample_rate_hertz,
+        "encoding": encoding,
+    }
 
-        local_files = sorted(glob.glob("./sliced*"), key=os.path.getctime)
-        script_index = 0
-        merged_script = ""
-        for local_file_path in local_files :
-            if (is_start(local_file_path)) :
-                print("Start Time")
-                write_merged_script(merged_script, script_index)
-                merged_script = ""
-                script_index += 1
-
-            with io.open(local_file_path, "rb") as f:
-                content = f.read()
-            audio = {"content": content}
-            response = client.recognize(config, audio)
-            print(u"Current File : " + local_file_path)
-            for result in response.results:
-
-                # First alternative is the most probable result
-                alternative = result.alternatives[0]
-                merged_script += (alternative.transcript + "\n")
-
-        if (merged_script != "") :
-            print("remained")
+    local_files = sorted(glob.glob("./sliced*"), key=os.path.getctime)
+    script_index = 0
+    merged_script = ""
+    for local_file_path in local_files :
+        if (is_start(local_file_path)) :
+            print("Start Time")
             write_merged_script(merged_script, script_index)
-        
-        return script_index + 1
+            merged_script = ""
+            script_index += 1
+
+        with io.open(local_file_path, "rb") as f:
+            content = f.read()
+        audio = {"content": content}
+        response = client.recognize(config, audio)
+        print(u"Current File : " + local_file_path)
+        for result in response.results:
+            # First alternative is the most probable result
+            alternative = result.alternatives[0]
+            merged_script += (alternative.transcript + "\n")
+        os.remove(local_file_path)
+
+    if (merged_script != "") :
+        print("remained")
+        write_merged_script(merged_script, script_index)
+    
+    return script_index + 1
 
 def is_start(file_path) :
     start_time = int(file_path.split("_")[1].split(".")[0].split("-")[0])

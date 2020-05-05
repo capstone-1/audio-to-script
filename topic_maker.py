@@ -1,27 +1,30 @@
 import tomotopy as tp # 먼저 모듈을 불러와야겠죠
 from tokenizer import tokenize
 from multiprocessing import Process
+from google.cloud import storage
 import os
 
-def make_topic(count_script):
+def make_topic(count_script, video_file_name):
     # 멀티프로세싱으로 다중 lda 수행
     file_names = []
+    file_numbers = []
     procs = []
     for i in range(0, count_script):
         file_names.append('script_' + str(i) + '.txt')
-    for file_name in file_names: 
-        proc = Process(target=core, args=(file_name,))
+        file_numbers.append(str(i))
+    for index, file_name in enumerate(file_names): 
+        proc = Process(target=core, args=(file_name, file_numbers[index], video_file_name))
         procs.append(proc)
         proc.start()
     for proc in procs: 
         proc.join()
 
-def core(file_name):
+def core(file_name, file_number, video_file_name):
     # 현재 동작중인 프로세스 표시
     current_proc = os.getpid()
     print('now {0} lda worker running...'.format(current_proc))
 
-    model = tp.LDAModel(k=7, alpha=0.1, eta=0.01, min_cf=3)
+    model = tp.LDAModel(k=1, alpha=0.1, eta=0.01, min_cf=3)
     # LDAModel을 생성합니다.
     # 토픽의 개수(k)는 7개, alpha 파라미터는 0.1, eta 파라미터는 0.01
     # 전체 말뭉치에 5회 미만 등장한 단어들은 제거할 겁니다.
@@ -40,17 +43,27 @@ def core(file_name):
     print('Total words:', model.num_words)
     print('Vocab size:', model.num_vocabs)
     
-    # 다음 구문은 train을 총 200회 반복하면서, 
-    # 매 단계별로 로그 가능도 값을 출력해줍니다.
-    # 혹은 단순히 model.train(200)으로 200회 반복도 가능합니다.
-    # for i in range(200):
-    #     print('Iteration {}\tLL per word: {}'.format(i, model.ll_per_word))
-    #     model.train(1)
     model.train(200)
 
     # 학습된 토픽들을 출력해보도록 합시다.
     for i in range(model.k):
-        # 토픽 개수가 총 20개이니, 0~19번까지의 토픽별 상위 단어 10개를 뽑아봅시다.
-        res = model.get_topic_words(i, top_n=10)
+        res = model.get_topic_words(i, top_n=5)
         print('Topic #{}'.format(i), end='\t')
-        print(', '.join(w for w, p in res))
+        topic = ', '.join(w for w, p in res)
+        print(topic)
+        make_topic_file(topic, "output_topic" + file_number + ".txt", video_file_name, file_name)
+
+# 추출된 토픽으로 파일 생성 -> GCS 업로드 (스크립트, 토픽) -> 로컬 삭제
+def make_topic_file(topic, topic_file_name, video_file_name, script_file_name):
+    with open(topic_file_name, "a") as f:
+            f.write(topic)
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket("capstone-test")
+    
+    blob = bucket.blob(video_file_name + "/result/" + topic_file_name)
+    blob.upload_from_filename(topic_file_name)
+    os.remove(topic_file_name)
+
+    blob = bucket.blob(video_file_name + "/result/" + script_file_name)
+    blob.upload_from_filename(script_file_name)
+    os.remove(script_file_name)
