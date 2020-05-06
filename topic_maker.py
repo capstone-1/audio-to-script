@@ -58,7 +58,7 @@ def core(file_name, file_number, video_file_name):
         upload_topic_file(topic, "output_topic" + file_number + ".txt", video_file_name)
     os.remove(file_name)
 
-# 추출된 토픽으로 파일 생성 -> GCS 업로드 (스크립트, 토픽) -> 로컬 삭제
+# 추출된 토픽 파일 생성 -> GCS 업로드 -> 로컬 삭제
 def upload_topic_file(topic, topic_file_name, video_file_name):
     with open(topic_file_name, "a") as f:
             f.write(topic)
