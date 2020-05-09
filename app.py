@@ -3,10 +3,14 @@ from video_loader import download_audio, divide_audio, sample_recognize_short
 from eng_sentence_extractor import script_to_summary 
 from topic_maker import make_topic
 from collections import OrderedDict
+from flask_cors import CORS, cross_origin
 import json
-
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 @app.route('/script-api')
+@cross_origin()
 def extractor():
     # audio download -> sliced audio
     bucket_name = "capstone-test"
@@ -31,13 +35,11 @@ def extractor():
 
 def make_response(script_url, topics, summary):
     scriptItem = OrderedDict()
-    response = OrderedDict()
     scriptItem["fullScript"] = script_url
-    scriptItem["smmary"] = summary
+    scriptItem["summary"] = summary
     scriptItem["topicEditList"] = topics
-    response["scriptItem"] = scriptItem
     
-    return jsonify(response)
+    return jsonify(scriptItem)
 
 if __name__ == "__main__":
     app.run()
