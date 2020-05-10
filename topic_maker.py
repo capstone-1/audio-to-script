@@ -74,8 +74,8 @@ def make_json(numbers, results):
     # file number -> script time
     for num, result in zip(numbers, results):
         detail = OrderedDict()
-        detail["start"] = int(num) * 177
-        detail["end"] = (int(num)+1) * 177
+        detail["start"] = int(num) * 590
+        detail["end"] = (int(num)+1) * 590
         detail["topic"] = result
         topic_list.append(detail)
     

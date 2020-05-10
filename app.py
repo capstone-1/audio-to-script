@@ -42,19 +42,4 @@ def make_response(script_url, topics, summary):
     return jsonify(scriptItem)
 
 if __name__ == "__main__":
-    app.run()
-
-
-#     ScriptItem : {
-#    fullScript: url,
-#    summary : string,
-#    topicEditList : [
-#       TopicEditItem
-#    ]
-# }
-
-# TopicEditItem : {
-#    start : sec,
-#    end : sec,
-#    topic : string
-# }
+    app.run(port = 6000)

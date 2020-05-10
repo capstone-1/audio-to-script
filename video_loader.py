@@ -95,7 +95,7 @@ def sample_recognize_short(destination_file_name):
 
 def is_start(file_path) :
     start_time = int(file_path.split("_")[1].split(".")[0].split("-")[0])
-    if (start_time != 0 and start_time % (59*3) == 0) :
+    if (start_time != 0 and start_time % (59*10) == 0) :
         return True
     return False
 

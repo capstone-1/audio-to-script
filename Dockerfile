@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 WORKDIR /root
-EXPOSE 5000
+EXPOSE 6000
 
 ENV PROJ_NAME=static-protocol-264107
 ENV LC_ALL=C.UTF-8
@@ -14,10 +14,9 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.c
 COPY ./capstone-sptt.json /root/credential_key.json
 RUN gcloud auth activate-service-account --key-file=credential_key.json && gcloud config set project $PROJ_NAME
 
-RUN pip3 install --upgrade pip && apt install -y ffmpeg && pip3 install --upgrade google-cloud-storage && pip3 install --upgrade google-cloud-speech && pip3 install wave pydub && pip3 install flask && pip3 install nltk tomotopy
+RUN pip3 install --upgrade pip && apt install -y ffmpeg && pip3 install --upgrade google-cloud-storage && pip3 install --upgrade google-cloud-speech && pip3 install wave pydub && pip3 install flask && pip3 install nltk tomotopy && pip3 install flask_cors
 
 RUN gcloud auth activate-service-account --key-file credential_key.json
 ENV GOOGLE_APPLICATION_CREDENTIALS="/root/credential_key.json"
 
 ENTRYPOINT [ "flask", "run" , "--host",  "0.0.0.0"]
-
