@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from video_loader import download_audio, divide_audio, sample_recognize_short
-from eng_sentence_extractor import script_to_summary 
+from kor_sentence_extractor import script_to_summary 
 from topic_maker import make_topic
 from collections import OrderedDict
 from flask_cors import CORS, cross_origin
@@ -24,7 +24,7 @@ def extractor():
     count_script = sample_recognize_short(destination_file_name)
 
     # sliced-script -> topic words
-    topics = make_topic(count_script, video_name)
+    topics = make_topic(count_script)
 
     # total-script -> summary
     summary = script_to_summary(video_name)
@@ -42,4 +42,4 @@ def make_response(script_url, topics, summary):
     return jsonify(scriptItem)
 
 if __name__ == "__main__":
-    app.run(port = 6000)
+    app.run(port = 5000)

@@ -49,7 +49,7 @@ def sample_recognize_short(destination_file_name):
     client = speech_v1.SpeechClient()
 
     # The language of the supplied audio
-    language_code = "en-US"
+    language_code = "ko-KR"
 
     # Sample rate in Hertz of the audio data sent
     sample_rate_hertz = 16000
