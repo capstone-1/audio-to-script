@@ -13,7 +13,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 @cross_origin()
 def extractor():
     # audio download -> sliced audio
-    bucket_name = "capstone-test"
+    bucket_name = "capstone-sptt-storage"
     video_name = request.args.get("fileName")
     destination_file_name = "audio.wav"
     blob_name = video_name + "/source/" + video_name + ".wav"
