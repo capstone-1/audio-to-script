@@ -13,7 +13,8 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 @cross_origin()
 def extractor():
     # audio download -> sliced audio
-    bucket_name = "capstone-sptt-storage"
+    
+    bucket_name = "capstone-test"
     video_name = request.args.get("fileName")
     destination_file_name = "audio.wav"
     blob_name = video_name + "/source/" + video_name + ".wav"
@@ -21,22 +22,19 @@ def extractor():
     divide_audio(destination_file_name)
 
     # sliced audio -> sliced script, total script
+
     count_script = sample_recognize_short(destination_file_name)
 
     # sliced-script -> topic words
     topics = make_topic(count_script)
 
-    # total-script -> summary
-    summary = script_to_summary(video_name)
-
     script_url = "https://storage.cloud.google.com/" + bucket_name + "/" + video_name + "/result/total_script.txt"
 
-    return make_response(script_url, topics, summary)
+    return make_response(script_url, topics)
 
-def make_response(script_url, topics, summary):
+def make_response(script_url, topics):
     scriptItem = OrderedDict()
     scriptItem["fullScript"] = script_url
-    scriptItem["summary"] = summary
     scriptItem["topicEditList"] = topics
     
     return jsonify(scriptItem)

@@ -22,7 +22,7 @@ def make_topic(count_script):
         proc = Process(target=core, args=(file_name, file_numbers[index], numbers, results))
         procs.append(proc)
         proc.start()
-    for proc in procs: 
+    for proc in procs:
         proc.join()
 
     os.remove("audio.wav")
@@ -34,14 +34,15 @@ def core(file_name, file_number, numbers, results):
     current_proc = os.getpid()
     print('now {0} lda worker running...'.format(current_proc))
 
-    model = tp.LDAModel(k=10, alpha=0.1, eta=0.01, min_cf=5)
+    model = tp.LDAModel(k=3, alpha=0.1, eta=0.01, min_cf=5)
     # LDAModel을 생성
     # 토픽의 개수(k)는 10개, alpha 파라미터는 0.1, eta 파라미터는 0.01
     # 전체 말뭉치에 5회 미만 등장한 단어들은 제거
     
     # 다음 구문은 input_file.txt 파일에서 한 줄씩 읽어와서 model에 추가
     for i, line in enumerate(open(file_name, encoding='cp949')):
-        model.add_doc(tokenize(line))
+        token = tokenize(line)
+        model.add_doc(token)
         if i % 10 == 0: print('Document #{} has been loaded'.format(i))
     
     model.train(0) 

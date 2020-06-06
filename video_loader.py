@@ -26,10 +26,6 @@ def download_audio(bucket_name, source_blob_name, destination_file_name):
     blob = bucket.blob(source_blob_name)
     blob.download_to_filename(destination_file_name)
     
-    # 일련의 과정에서 사용될 버킷 내 폴더 미리 생성
-    blob = bucket.blob("test_shark/result/")
-    blob.upload_from_string('', content_type='application/x-www-form-urlencoded;charset=UTF-8')
-
     print(
         "Blob {} downloaded to {}.".format(
             source_blob_name, destination_file_name
@@ -95,7 +91,7 @@ def sample_recognize_short(destination_file_name):
 
 def is_start(file_path) :
     start_time = int(file_path.split("_")[1].split(".")[0].split("-")[0])
-    if (start_time != 0 and start_time % (59*10) == 0) :
+    if (start_time != 0 and start_time % (590) == 0) :
         return True
     return False
 
@@ -112,7 +108,6 @@ def write_total_script(total_script):
         else :
             fd.write(word.strip('\n')+" ")
         idx += 1
-    #    newline_script = get_newline_script(merged_script)
     fd.close()
 
 def write_merged_script(merged_script, script_index) :
@@ -128,12 +123,11 @@ def write_merged_script(merged_script, script_index) :
         else :
             fd.write(word.strip('\n')+" ")
         idx += 1
-    #    newline_script = get_newline_script(merged_script)
     fd.close()
 
 def divide_audio(destination_file_name):
     duration = get_audio_duration(destination_file_name)
-    for start in range(0,duration,59) :
+    for start in range(0,duration, 59) :
         if (duration - start < 59) :
             end = duration
         else :
